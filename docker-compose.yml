@@ -9,7 +9,7 @@ services:
     environment:
       - FLASK_APP=cscl_api.app.py
       - FLASK_ENV=development
-      - DATABASE_URL=postgresql://cscl:SuperSecret@host.docker.internal/book_crossing
+      - DATABASE_URL=postgresql://postgres:postgres@localhost/cscl
     volumes:
       - ./cscl_api:/usr/src/app/cscl_api
 volumes:
