@@ -19,6 +19,10 @@ pip install -r requirements.txt
 ### Docker & Docker-Compose
 Docker containers are used to facilitate local development.
 
+### Upgrade docker postgres 
+https://github.com/Hack-Diversity/cscl_local_db
+Use cscl_db.sql in this seed folder to update seed folder in standalone postgres docker, then run `docker-compose down -v` and the `docker-composer up` to update the standalone postgres docker with the new database structure
+
 #### Commands
 | Command | Description |
 |:---|---|
@@ -35,7 +39,8 @@ Environment variables allow you to configure your application environment. These
 |---|---|
 | FLASK_APP | Name of application that the Flask development server should start. This should be the name of your Python package relative to your current directory. i.e `cscl_api`|
 | FLASK_ENV | Environment type that FLask should be running in. `development` enables Debug and should only be used for local development. `production` disables debug and is appropriate for a production build. |
-| DATABASE_URL | URL to Postgres server. Must start with `postgresql://user:password@host.docker.internal/database` |
+| DATABASE_URL (Host Machine Postgres) | URL to Postgres server. Must start with `postgresql://user:password@host.docker.internal/database` |
+| DATABASE_URL (Docker Postgres)| URL to Postgres server. Must start with `postgresql://user:password@localhost/database` |
 
 ## API
 The CSCL API is a simple API which allows users (frontend clients), to interact with the data records stored within MongoDB
