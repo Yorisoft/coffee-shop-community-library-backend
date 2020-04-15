@@ -1,0 +1,16 @@
+version: '3.3'
+
+services:
+  api:
+    build: .
+    container_name: cscl_api
+    ports:
+      - 5000:5000
+    environment:
+      - FLASK_APP=cscl_api.app.py
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://cscl:SuperSecret@host.docker.internal/book_crossing
+    volumes:
+      - ./cscl_api:/usr/src/app/cscl_api
+volumes:
+  postgres_data:
