@@ -21,6 +21,7 @@ Docker containers are used to facilitate local development.
 
 ### Upgrade docker postgres 
 https://github.com/Hack-Diversity/cscl_local_db
+
 Use cscl_db.sql in this seed folder to update seed folder in standalone postgres docker, then run `docker-compose down -v` and the `docker-composer up` to update the standalone postgres docker with the new database structure
 
 #### Commands
