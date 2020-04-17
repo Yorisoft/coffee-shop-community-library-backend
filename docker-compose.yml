@@ -21,7 +21,7 @@ services:
     environment:
       - FLASK_APP=cscl_api.app.py
       - FLASK_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@localhost/cscl
+      - DATABASE_URL=postgresql://postgres:postgres@192.168.99.100/cscl
     volumes:
       - ./cscl_api:/usr/src/app/cscl_api
 volumes:
