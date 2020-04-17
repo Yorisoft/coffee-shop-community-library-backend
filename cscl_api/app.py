@@ -2,9 +2,11 @@ from flask import Flask
 from flask import request
 from flask_sqlalchemy import SQLAlchemy
 import os
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+CORS(app, resources={r"/*": {"origins": "*"}})
 db = SQLAlchemy(app)
 
 from .models import Book
