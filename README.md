@@ -56,6 +56,10 @@ Below is a description of parameters that will be rerferenced in the [Endpoints]
 - `image_url_l`: Link to large image of
 
 ### Endpoints
+
+#### Swagger documentation
+myapi.com/apidocs/
+
 #### /book/\<isbn\>
 HTTP Method: GET  
 Parameters: 
@@ -123,6 +127,8 @@ GET myapi.com/books?c=2&p=1
 
 <Response>
 [
+    prev: null,
+    next: null,
     {
         "isbn": 000001,
         "title": "First book",
