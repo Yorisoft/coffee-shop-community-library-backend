@@ -3,10 +3,12 @@ from flask import request
 from flask_sqlalchemy import SQLAlchemy
 import os
 from flask_cors import CORS
+from flasgger import Swagger
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 CORS(app, resources={r"/*": {"origins": "*"}})
+swagger = Swagger(app)
 db = SQLAlchemy(app)
 
 from .models import Book
@@ -14,8 +16,21 @@ from flask.json import jsonify
 
 @app.route('/')
 def root_view():
-    #book = Book.query.filter_by(isbn='0525947647').all()
-    #result = [d.to_dict() for d in book] #book.to_dict()
+    """Endpoint to check api health
+    This is using docstrings for specifications.
+    ---
+    definitions:
+      Status:
+        type: object
+        properties:
+          msg:
+            type: string             
+    responses:
+      200:
+        description: Api health status
+        schema:
+          $ref: '#/definitions/Status'
+    """
     return jsonify({"msg": "Welcome to Coffee shop"}), 200
 
 
@@ -23,6 +38,42 @@ def root_view():
 #HTTP Method: GET
 @app.route('/book/<string:isbn>', methods=['GET'])
 def show_book(isbn):
+    """Endpoint for retrieving a book by using its isbn
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: isbn
+        in: path
+        type: string
+        required: true
+    definitions:
+      Book:
+        type: object
+        properties:
+          author:
+            type: string
+          image_url_l:
+            type: string  
+          image_url_m:
+            type: string
+          image_url_s:
+            type: string
+          isbn:
+            type: string
+          number_of_copies:
+            type: string
+          publisher:
+            type: string 
+          title:
+            type: string 
+          year_of_publication:
+            type: integer             
+    responses:
+      200:
+        description: A book
+        schema:
+          $ref: '#/definitions/Book'
+    """
     book = Book.query.filter_by(isbn=isbn).first()
     return book.to_dict()
 
@@ -31,6 +82,68 @@ def show_book(isbn):
 #HTTP Method: GET
 @app.route('/book', methods=['GET'])
 def index_book():
+    """Endpoint used for pagianting a list of books
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: c
+        in: query
+        type: integer
+        required: true
+        description: Number of books returned
+      - name: p
+        in: query
+        type: integer
+        required: true 
+        description: The offset used to traverse the list of books 
+    definitions:
+      Status:
+        type: object
+        properties:
+          msg:
+            type: string
+      Book:
+        type: object
+        properties:
+          author:
+            type: string
+          image_url_l:
+            type: string  
+          image_url_m:
+            type: string
+          image_url_s:
+            type: string
+          isbn:
+            type: string
+          number_of_copies:
+            type: string
+          publisher:
+            type: string 
+          title:
+            type: string 
+          year_of_publication:
+            type: integer 
+      Page:
+        type: object
+        properties:
+          next:
+            type: string 
+          prev:
+            type: string
+          result:
+            type: array 
+            items:
+               $ref: '#/definitions/Book'                           
+    responses:
+      200:
+        description: A book
+        schema:
+          $ref: '#/definitions/Page'  
+      400:
+        description: Pagination error
+        schema:
+          $ref: '#/definitions/Status'    
+    """
     # to do
     book_count = Book.query.count()
     print(book_count)
@@ -55,7 +168,7 @@ def index_book():
         result = [d.to_dict() for d in book_list]
         return jsonify(result=result, next = next, prev = prev)      
     except Exception:
-        return jsonify({"msg": "Pagination error"}), 400
+        return jsonify({"msg": "Pagination error"}), 400  
 
 
 #/book/<isbn>
@@ -63,6 +176,83 @@ def index_book():
 #Should mainly be able to update book count but missing field
 @app.route('/book', methods=['POST'])
 def store_book():
+    """Endpoint for creating a book entry
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: isbn
+        in: body
+        type: string
+        required: true
+      - name: author
+        in: body
+        type: string
+        required: true
+      - name: title
+        in: body
+        type: string
+        required: true
+      - name: publisher
+        in: body
+        type: string
+        required: true
+      - name: image_url_s
+        in: body
+        type: string
+        required: false
+      - name: image_url_m
+        in: body
+        type: string
+        required: false
+      - name: image_url_l
+        in: body
+        type: string
+        required: false
+      - name: number_of_copies
+        in: body
+        type: integer
+        required: true
+      - name: year_of_publication
+        in: body
+        type: integer
+        required: true              
+    definitions:
+      Status:
+        type: object
+        properties:
+          msg:
+            type: string
+      Book:
+        type: object
+        properties:
+          author:
+            type: string
+          image_url_l:
+            type: string  
+          image_url_m:
+            type: string
+          image_url_s:
+            type: string
+          isbn:
+            type: string
+          number_of_copies:
+            type: string
+          publisher:
+            type: string 
+          title:
+            type: string 
+          year_of_publication:
+            type: integer             
+    responses:
+      201:
+        description: A book
+        schema:
+          $ref: '#/definitions/Book'
+      400:
+        description: Request error
+        schema:
+          $ref: '#/definitions/Book'    
+    """
     book = Book(None,None, None,None,None,None,None,None)
     content = request.json
     if 'title' in content and 'year_of_publication' in content and 'isbn' in content and 'author' in content and 'publisher' in content:
@@ -95,6 +285,74 @@ def store_book():
 #Should mainly be able to update book count but missing field
 @app.route('/book/<string:isbn>', methods=['PUT'])
 def update_book(isbn):
+    """Endpoint for updating a book entry
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: isbn
+        in: path
+        type: string
+        required: true
+      - name: author
+        in: body
+        type: string
+        required: false
+      - name: title
+        in: body
+        type: string
+        required: false
+      - name: publisher
+        in: body
+        type: string
+        required: false
+      - name: image_url_s
+        in: body
+        type: string
+        required: false
+      - name: image_url_m
+        in: body
+        type: string
+        required: false
+      - name: image_url_l
+        in: body
+        type: string
+        required: false
+      - name: number_of_copies
+        in: body
+        type: integer
+        required: false
+      - name: year_of_publication
+        in: body
+        type: integer
+        required: false              
+    definitions:
+      Book:
+        type: object
+        properties:
+          author:
+            type: string
+          image_url_l:
+            type: string  
+          image_url_m:
+            type: string
+          image_url_s:
+            type: string
+          isbn:
+            type: string
+          number_of_copies:
+            type: string
+          publisher:
+            type: string 
+          title:
+            type: string 
+          year_of_publication:
+            type: integer             
+    responses:
+      201:
+        description: A book
+        schema:
+          $ref: '#/definitions/Book'
+    """
     update_flag = False
     book = Book.query.filter_by(isbn=isbn).first()
     content = request.json
@@ -114,6 +372,55 @@ def update_book(isbn):
 #Should mainly be able to update book count but missing field
 @app.route('/inventory/loan/book/<string:isbn>', methods=['PUT'])
 def inventory_loan_book(isbn):
+    """Endpoint for borrowing a book entry
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: isbn
+        in: path
+        type: string
+        required: true
+      - name: loans
+        in: body
+        type: integer
+        required: false             
+    definitions:
+      Status:
+        type: object
+        properties:
+          msg:
+            type: string
+      Book:
+        type: object
+        properties:
+          author:
+            type: string
+          image_url_l:
+            type: string  
+          image_url_m:
+            type: string
+          image_url_s:
+            type: string
+          isbn:
+            type: string
+          number_of_copies:
+            type: string
+          publisher:
+            type: string 
+          title:
+            type: string 
+          year_of_publication:
+            type: integer             
+    responses:
+      201:
+        description: A book
+        schema:
+          $ref: '#/definitions/Book'
+      400:
+        description: Request error
+        schema:
+          $ref: '#/definitions/Status'    
+    """
     update_flag = False
     book = Book.query.filter_by(isbn=isbn).first()
     content = request.json
@@ -136,6 +443,46 @@ def inventory_loan_book(isbn):
 #Should mainly be able to update book count but missing field
 @app.route('/inventory/return/book/<string:isbn>', methods=['PUT'])
 def inventory_return_book(isbn):
+    """Endpoint for returning a book entry
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: isbn
+        in: path
+        type: string
+        required: true
+      - name: returns
+        in: body
+        type: integer
+        required: false             
+    definitions:
+      Book:
+        type: object
+        properties:
+          author:
+            type: string
+          image_url_l:
+            type: string  
+          image_url_m:
+            type: string
+          image_url_s:
+            type: string
+          isbn:
+            type: string
+          number_of_copies:
+            type: string
+          publisher:
+            type: string 
+          title:
+            type: string 
+          year_of_publication:
+            type: integer             
+    responses:
+      201:
+        description: A book
+        schema:
+          $ref: '#/definitions/Book'
+    """
     update_flag = False
     book = Book.query.filter_by(isbn=isbn).first()
     content = request.json
@@ -154,6 +501,30 @@ def inventory_return_book(isbn):
 #Should mainly be able to update book count but missing field
 @app.route('/book/<string:isbn>', methods=['DELETE'])
 def delete_book(isbn):
+    """Endpoint for deleting a book entry
+    This is using docstrings for specifications.
+    ---
+    parameters:
+      - name: isbn
+        in: path
+        type: string
+        required: true            
+    definitions:
+      Status:
+        type: object
+        properties:
+          msg:
+            type: string             
+    responses:
+      200:
+        description: Success msg
+        schema:
+          $ref: '#/definitions/Status'
+      404:
+        description: No book found
+        schema:
+          $ref: '#/definitions/Status'    
+    """
     book = Book.query.filter_by(isbn=isbn).all()
     if len(book) > 0:
         for obj in book:
@@ -161,4 +532,4 @@ def delete_book(isbn):
             db.session.commit()
         return jsonify({"msg": "Book deleted"}), 200
     else:
-        return jsonify({"msg": "Book does not exist"}), 404     
+        return jsonify({"msg": "Book does not exist"}), 404    
