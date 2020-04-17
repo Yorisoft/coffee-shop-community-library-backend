@@ -24,11 +24,16 @@ def show_book(isbn):
     book = Book.query.filter_by(isbn=isbn).first()
     return book.to_dict()
 
-#/book/<isbn>
+
+#/book?c=10&p=1
 #HTTP Method: GET
 @app.route('/book', methods=['GET'])
 def index_book():
     # to do
+    book_count = Book.query.count()
+    print(book_count)
+    next = None
+    prev = None
     c = 10
     p = 1
     try:
@@ -36,10 +41,17 @@ def index_book():
         p = int(request.args.get('p'))
     except Exception:
         return jsonify({"msg": "Invalid page params"}), 400
+    if p > 1:
+        check_prev = p - 1
+        if book_count >= c * check_prev:
+            prev = request.base_url + "?c=" + str(c) + "&p=" + str(check_prev)
+    check_next = p + 1  
+    if book_count >= c * check_next:
+        next = request.base_url + "?c=" + str(c) + "&p=" + str(check_next)
     try:
         book_list = Book.query.order_by(Book.title.asc()).paginate(p, per_page=c).items
         result = [d.to_dict() for d in book_list]
-        return jsonify(result=result)      
+        return jsonify(result=result, next = next, prev = prev)      
     except Exception:
         return jsonify({"msg": "Pagination error"}), 400
 
