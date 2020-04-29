@@ -253,7 +253,7 @@ def store_book():
         schema:
           $ref: '#/definitions/Book'    
     """
-    book = Book(None,None, None,None,None,None,None,None)
+    book = Book(None,None, None,None,None,None,None,None, 1)
     content = request.json
     if 'title' in content and 'year_of_publication' in content and 'isbn' in content and 'author' in content and 'publisher' in content:
         ifExist = Book.query.filter_by(isbn=content['isbn']).all()
